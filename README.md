@@ -11,6 +11,10 @@ This package connects to an OptiTrack server (via NatNet) and transform data to 
 <br/></br>
 ## 📑 List of ROS2 Executables
 
+- **final**
+
+  Subscribe OptiTrack pose data, converts it into `px4_msgs/VehicleOdometry` messages in NED frame, and publishes on `/fmu/in/vehicle_visual_odometry` topic. This allows using OptiTrack data instead of GPS in PX4. For more details, please refer to [this site](https://docs.px4.io/main/en/computer_vision/visual_inertial_odometry.html). Additionally, this node adds custom pose variance settings compared to the below px4 node. **(Recommended)**
+  
 - **pose**
 
   Publishes `geometry_msgs/PoseStamped` type ROS2 topic for each tracked body. This contains **timestamp**, **position**, **orientation**(quaternion).
@@ -33,10 +37,63 @@ Clone this repository into your ROS 2 workspace `src` folder:
 
    ```bash
    cd ~/ros2_ws/src
-   git clone https://github.com/jwleesnu/ros2_optitrack_bridge.git
+   git clone https://github.com/0831joon/ros2_optitrack_bridge.git
+   git clone https://github.com/PX4/px4_msgs.git
+   git clone https://github.com/PX4/px4_ros_com.git
    ```
 
 ## 📑 Usage
+
+### final node (Recommended)
+
+Converts OptiTrack pose into PX4 `VehicleOdometry` message and publishes on `/fmu/in/vehicle_visual_odometry`.
+
+```bash
+ros2 run ros2_optitrack_bridge final
+```
+
+- Topic: `/fmu/in/vehicle_visual_odometry` (`px4_msgs/VehicleOdometry` type)
+
+- Structure :
+
+  ```Yaml
+  px4_msgs/msg/VehicleOdometry:
+    timestamp: uint64
+    timestamp_sample: uint64
+    pose_frame: 1
+    position: 
+      - float32  # x
+      - float32  # y
+      - float32  # z
+    q: 
+      - float32  # x
+      - float32  # y
+      - float32  # z
+      - float32  # w
+    velocity_frame: 1
+    velocity:
+      - NaN
+      - NaN
+      - NaN
+    angular_velocity:
+      - NaN
+      - NaN
+      - NaN
+    position_variance:
+      - 0.0001
+      - 0.0001
+      - 0.0001
+    orientation_variance:
+      - 0.001
+      - 0.001
+      - 0.0005
+    velocity_variance:
+      - NaN
+      - NaN
+      - NaN
+    reset_counter: uint8
+    quality: int8
+  ```
 
 ### pose node
 
